@@ -1,10 +1,10 @@
-# 🎡 Neon Raffle Wheel DApp
+# Neon Raffle Wheel DApp
 
 This is an interactive Raffle Wheel connected to the Ethereum Sepolia testnet, with a fully functional demo mode.
 
 ---
 
-## ✨ Features
+## Features
 
 - **Connect Wallet** — connect MetaMask and create the contract instance.
 - **Enter Raffle** — register your nickname by sending a transaction with a small ETH fee.
@@ -15,7 +15,7 @@ This is an interactive Raffle Wheel connected to the Ethereum Sepolia testnet, w
 
 ---
 
-## ⚙️ Buttons Overview
+## ⚙Buttons Overview
 
 | Button               | Action                                                                 |
 |----------------------|------------------------------------------------------------------------|
@@ -50,7 +50,7 @@ This is an interactive Raffle Wheel connected to the Ethereum Sepolia testnet, w
 ## 📄 Smart Contract
 
 **Contract Address:**
-0x13848bb241E02BBbeD825CD6dba9C3ac309802b4
+`0x13848bb241E02BBbeD825CD6dba9C3ac309802b4`
 
 **Functions:**
 - `enter(string name) payable`
@@ -59,7 +59,7 @@ This is an interactive Raffle Wheel connected to the Ethereum Sepolia testnet, w
 
 ---
 
-## 🧠 Notes
+## Notes
 
 - You must have at least one real participant to use **SPIN**.
 - If there are no players, use **DEMO SPIN** to simulate a winner.
@@ -68,7 +68,7 @@ This is an interactive Raffle Wheel connected to the Ethereum Sepolia testnet, w
 
 ---
 
-## 🎯 License
+## License
 
 MIT License. Feel free to customize and improve!
 "# wheel" 
