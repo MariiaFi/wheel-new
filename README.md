@@ -26,7 +26,7 @@ This is an interactive Raffle Wheel connected to the Ethereum Sepolia testnet, w
 
 ---
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 - **HTML + CSS + JavaScript**
 - **ethers.js v5**
@@ -35,7 +35,7 @@ This is an interactive Raffle Wheel connected to the Ethereum Sepolia testnet, w
 
 ---
 
-## 🚀 How to Use
+## How to Use
 
 1. Install [MetaMask](https://metamask.io).
 2. Switch to the Sepolia network and get test ETH from a faucet.
@@ -47,7 +47,7 @@ This is an interactive Raffle Wheel connected to the Ethereum Sepolia testnet, w
 
 ---
 
-## 📄 Smart Contract
+## Smart Contract
 
 **Contract Address:**
 `0x13848bb241E02BBbeD825CD6dba9C3ac309802b4`
