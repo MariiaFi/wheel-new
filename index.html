@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Raffle Wheel with Nicknames</title>
+    <!-- Material Symbols Icon Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <!-- Ethers.js library for Ethereum interactions -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+    <style>
+        body {
+            background-color: #0d0d0d;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: white;
+            padding: 20px;
+        }
+
+        .wheel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 28px;
+            color: #d19eff;
+            text-shadow: 0 0 5px #d19eff;
+        }
+
+        .svg-wheel-wrapper {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin-top: 60px;
+        }
+
+        .wheel-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 15px #aa00ff);
+            transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+            transform-origin: center center;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #d19eff;
+            filter: drop-shadow(0 0 6px #d19eff);
+        }
+
+        .button {
+            margin-top: 20px;
+            padding: 14px 36px;
+            background: #d19eff;
+            border: 3px solid #d19eff;
+            border-radius: 12px;
+            color: black;
+            font-weight: 700;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 0 20px #d19eff, inset 0 0 10px #d19eff;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .button,
+        .spin-button {
+            width: 220px;
+            box-sizing: border-box;
+        }
+
+        .button:hover {
+            background: #e5cfff;
+            transform: scale(1.05);
+        }
+
+        .winner-text {
+            margin-top: 40px;
+            font-size: 22px;
+            color: #00ffcc;
+            text-shadow: 0 0 5px #00ffcc;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-size: 36px;
+            color: #00ffcc;
+            text-shadow: 0 0 8px #00ffcc;
+        }
+
+        input {
+            margin-top: 20px;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 2px solid #d19eff;
+            background: #1e1e1e;
+            color: white;
+            width: 220px;
+            box-sizing: border-box;
+        }
+
+        .spin-button {
+            margin-top: 20px;
+            padding: 14px 36px;
+            background: #d19eff;
+            border: 3px solid #d19eff;
+            border-radius: 12px;
+            color: black;
+            font-weight: 700;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 0 20px #d19eff, inset 0 0 10px #d19eff;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .spin-button:hover {
+            background: #e5cfff;
+            transform: scale(1.05);
+        }
+
+        .wheel-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2 class="wheel-title">
+        <span class="material-symbols-outlined icon-heading">toys_fan</span>
+        Spin the Wheel
+    </h2>
+
+    <div class="wheel-container">
+        <div class="svg-wheel-wrapper">
+            <svg viewBox="0 0 300 300" class="wheel-svg" id="wheel">
+                <g id="segments"></g>
+                <circle cx="150" cy="150" r="40" fill="#0d0d0d" stroke="#aa00ff" stroke-width="4" />
+            </svg>
+            <div class="pointer"></div><div id="winner" class="winner-text"></div>
+        </div>
+
+        <div class="controls">
+            <input type="text" id="nickname" placeholder="Enter your nickname" />
+            <button class="button" onclick="connectWallet()">Connect Wallet</button>
+            <button class="button" onclick="enterRaffle()">Enter Raffle</button>
+            <button class="spin-button" onclick="spinWheel()">SPIN</button>
+            <button class="spin-button" onclick="demoSpin()">DEMO SPIN</button>
+
+            
+        </div>
+    </div>
+
+    <div class="pointer-laser"></div>
+
+
+    <script>
+        const contractAddress = "0x13848bb241E02BBbeD825CD6dba9C3ac309802b4";
+        const abi = [
+            "function enter(string name) public payable",
+            "function pickWinner() public",
+            "event WinnerSelected(address winner, string name)"
+        ];
+
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        let signer;
+        let contract;
+
+
+        /**
+         * Connects the user's wallet to the Dapp.
+         *
+         * Once the user clicks the "Connect Wallet" button, this function is called. It uses the
+         * `eth_requestAccounts` method of the provider to request access to the user's Ethereum
+         * accounts. Once the user grants access, the function retrieves the first account (the
+         * one that the user selected) and uses it to create a signer. The signer is then used to
+         * create a new instance of the `ethers.Contract` class, which is used to interact with the
+         * smart contract. Finally, the function displays a success message to the user.
+         */
+        async function connectWallet() {
+            await provider.send("eth_requestAccounts", []);
+            signer = provider.getSigner();
+            contract = new ethers.Contract(contractAddress, abi, signer);
+            alert("✅ Wallet connected!");
+        }
+
+
+
+
+/**
+ * Enters the user into the raffle by interacting with the smart contract.
+ * 
+ * This function first checks if the wallet is connected. If not, it alerts the user to connect 
+ * their wallet. It then retrieves the nickname entered by the user from the input field. 
+ * If the nickname is empty, it alerts the user to enter a nickname. 
+ * Finally, it sends a transaction to the smart contract's `enter` function with the user's 
+ * nickname and the required entry fee of 0.001 ETH. Upon successful transaction completion, 
+ * it alerts the user that they have entered the raffle with their nickname.
+ */
+
+        async function enterRaffle() {
+            if (!contract) return alert("Connect wallet first!");
+            const name = document.getElementById('nickname').value.trim();
+            if (!name) return alert("Please enter a nickname!");
+            const tx = await contract.enter(name, { value: ethers.utils.parseEther("0.001") });
+            await tx.wait();
+            alert(`🎟️ You entered the raffle as ${name}!`);
+        }
+
+        const segments = ['Maria', 'AnonETH', 'Vitalina', 'SoldEth+', 'DonatorX', 'NodeBaker', 'CryptoCat'];
+        const wheel = document.getElementById('wheel');
+        const segmentContainer = document.getElementById('segments');
+
+        /*************  ✨ Windsurf Command ⭐  *************/
+        /**
+         * Creates SVG path elements representing segments of a wheel and appends them to the segment container.
+         * Each segment is styled and labeled with text from the 'segments' array.
+         * Calculates the positions for segment paths and text based on division of the circle into equal angles.
+         */
+
+        /*******  721d571a-5844-4c58-947f-494c7dafd073  *******/
+        const createSegments = () => {
+            const numSegments = segments.length;
+            const angleStep = 360 / numSegments;
+
+            for (let i = 0; i < numSegments; i++) {
+                const startAngle = i * angleStep;
+                const endAngle = (i + 1) * angleStep;
+
+                const x1 = 150 + 140 * Math.cos((Math.PI / 180) * startAngle);
+                const y1 = 150 + 140 * Math.sin((Math.PI / 180) * startAngle);
+                const x2 = 150 + 140 * Math.cos((Math.PI / 180) * endAngle);
+                const y2 = 150 + 140 * Math.sin((Math.PI / 180) * endAngle);
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                const d = "M150,150 L" + x1 + "," + y1 + " A140,140 0 0,1 " + x2 + "," + y2 + " Z";
+                path.setAttribute("d", d);
+                path.setAttribute("fill", "none");
+                path.setAttribute("stroke", "#aa00ff");
+                path.setAttribute("stroke-width", "2");
+                segmentContainer.appendChild(path);
+
+                const textAngle = startAngle + angleStep / 2;
+                const tx = 150 + 90 * Math.cos((Math.PI / 180) * textAngle);
+                const ty = 150 + 90 * Math.sin((Math.PI / 180) * textAngle);
+
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", tx);
+                text.setAttribute("y", ty);
+                text.setAttribute("fill", "white");
+                text.setAttribute("font-size", "10");
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("alignment-baseline", "middle");
+                text.setAttribute("transform", "rotate(" + textAngle + ", " + tx + ", " + ty + ")");
+                text.textContent = segments[i];
+                segmentContainer.appendChild(text);
+            }
+        };
+
+        createSegments();
+
+        let spinning = false;
+
+
+        /**
+         * Spins the wheel and picks a winner from the contract.
+         * Updates the `#winner` element with the winner's name.
+         * @returns {Promise<void>}
+         */
+        async function spinWheel() {
+            if (!contract) return alert("Connect wallet first!");
+
+            const tx = await contract.pickWinner();
+            const receipt = await tx.wait();
+            const event = receipt.events.find(e => e.event === "WinnerSelected");
+            const winnerName = event.args.name;
+
+            const winnerIndex = segments.indexOf(winnerName);
+            if (winnerIndex === -1) {
+                alert("Winner name not found in segments array!");
+                return;
+            }
+
+            const angleStep = 360 / segments.length;
+            const sectorAngle = winnerIndex * angleStep;
+
+            const randomFullTurns = 360 * 5;
+
+            const finalRotation = randomFullTurns - sectorAngle;
+
+            wheel.style.transform = "rotate(" + finalRotation + "deg)";
+
+            setTimeout(() => {
+                document.getElementById('winner').innerHTML =
+                    '<span class="material-symbols-outlined">taunt</span> Winner: ' + winnerName + '!';
+                spinning = false;
+            }, 4500);
+        }
+        /*************  ✨ Windsurf Command ⭐  *************/
+        /**
+         * 
+         * - Selects a random index from the segments array to determine the demo winner.
+         * - Calculates the rotation angle to stop at the selected winner segment.
+         * - Animates the wheel spinning and updates the winner display with a demo winner message.
+         */
+
+
+        /*******  8b7ac9ab-3555-421b-89fc-05620639a7b7  *******/
+        function demoSpin() {
+
+            const randomIndex = Math.floor(Math.random() * segments.length);
+            const winnerName = segments[randomIndex];
+
+            const angleStep = 360 / segments.length;
+            const sectorAngle = randomIndex * angleStep;
+            const finalRotation = 360 * 5 - sectorAngle;
+
+            wheel.style.transform = "rotate(" + finalRotation + "deg)";
+
+            setTimeout(() => {
+                document.getElementById('winner').innerHTML =
+                    '<span class="material-symbols-outlined">info</span> Demo Winner: ' + winnerName + '!';
+                spinning = false;
+            }, 4500);
+        }
+
+    </script>
+
+</body>
+
+</html>
