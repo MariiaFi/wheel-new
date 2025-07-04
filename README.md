@@ -11,12 +11,12 @@ An interactive decentralized Raffle Wheel connected to the Ethereum Sepolia test
 
 ## Features
 
-- **Connect Wallet** — connect MetaMask and initialize the contract.
-- **Enter Raffle** — register your nickname on-chain by sending 0.001 ETH.
-- **SPIN** — request secure randomness via Chainlink VRF to pick a winner on-chain.
-- **DEMO SPIN** — simulate spinning the wheel without blockchain interaction.
-- **Dynamic SVG Neon Wheel** — displays all current participants in glowing segments.
-- **Winner Display** — shows the selected winner below the wheel.
+- **Connect Wallet** - connect MetaMask and initialize the contract.
+- **Enter Raffle** - register your nickname on-chain by sending 0.001 ETH.
+- **SPIN** - request secure randomness via Chainlink VRF to pick a winner on-chain.
+- **DEMO SPIN** - simulate spinning the wheel without blockchain interaction.
+- **Dynamic SVG Neon Wheel** - displays all current participants in glowing segments.
+- **Winner Display** - shows the selected winner below the wheel.
 
 ---
 
@@ -61,9 +61,9 @@ An interactive decentralized Raffle Wheel connected to the Ethereum Sepolia test
 
 
 **Main Functions:**
-- `enter(string name) payable` — joins the raffle with your nickname.
-- `pickWinner()` — requests a secure random number from Chainlink VRF and selects the winner.
-- `getPlayers()` — returns current participant addresses and nicknames.
+- `enter(string name) payable` - joins the raffle with your nickname.
+- `pickWinner()` - requests a secure random number from Chainlink VRF and selects the winner.
+- `getPlayers()` - returns current participant addresses and nicknames.
 
 **Events:**
 - `WinnerSelected(address winner, string name)`
