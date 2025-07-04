@@ -1,5 +1,10 @@
 # Neon Raffle Wheel DApp
 
+[![Ethereum](https://img.shields.io/badge/Ethereum-Sepolia-blue?logo=ethereum)](https://ethereum.org)
+[![Chainlink](https://img.shields.io/badge/Chainlink-VRF-blue?logo=chainlink)](https://chain.link/)
+[![MetaMask](https://img.shields.io/badge/MetaMask-Supported-orange?logo=metamask)](https://metamask.io)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
 An interactive decentralized Raffle Wheel connected to the Ethereum Sepolia testnet, featuring live Chainlink VRF randomness and dynamic segment updates.
 
 ---
